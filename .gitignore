@@ -37,3 +37,16 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+
+# IntelliJ full folder
+.idea/
+
+# Tomcat plugin
+.smarttomcat/
+
+# Maven target
+target/
+
+# Logs
+*.log
