@@ -1,11 +1,11 @@
 package servlet;
 
+import dao.PatientDAO;
+import dao.AppointmentDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
-
-import dao.AppointmentDAO;
 
 @WebServlet("/bookAppointment")
 public class AppointmentS extends HttpServlet {
@@ -40,10 +40,16 @@ public class AppointmentS extends HttpServlet {
             }
 
             int doctorId = Integer.parseInt(doctorParam);
-            Integer patientId = (Integer) session.getAttribute("userId");
 
-            if (patientId == null) {
-                res.sendRedirect("login.jsp");
+            // 🔥 IMPORTANT FIX (userId based mapping)
+            int userId = (Integer) session.getAttribute("userId");
+
+            PatientDAO pdao = new PatientDAO();
+            int patientId = pdao.getPatientIdByUserId(userId);
+
+            // 🔴 Safety check
+            if (patientId == 0) {
+                res.sendRedirect("bookAppointment.jsp?error=invalidPatient");
                 return;
             }
 
@@ -51,7 +57,6 @@ public class AppointmentS extends HttpServlet {
             boolean status = dao.bookAppointment(patientId, doctorId, date);
 
             if (status) {
-                // ✅ SUCCESS REDIRECT WITH MESSAGE
                 res.sendRedirect("patientDashboard.jsp?msg=booked");
             } else {
                 res.sendRedirect("bookAppointment.jsp?error=failed");

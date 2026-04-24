@@ -10,7 +10,7 @@ public class PatientDAO {
 
     public boolean addPatient(Patient patient) {
         boolean status = false;
-        String sql = "INSERT INTO patients(name, age, gender, phone, disease) VALUES(?,?,?,?,?)";
+        String sql = "INSERT INTO patients(name, age, gender, phone, disease, user_id) VALUES(?,?,?,?,?,?)";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, patient.getName());
@@ -18,6 +18,7 @@ public class PatientDAO {
             ps.setString(3, patient.getGender());
             ps.setString(4, patient.getPhone());
             ps.setString(5, patient.getDisease());
+            ps.setInt(6, patient.getUserId());
             if (ps.executeUpdate() > 0) status = true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -121,5 +122,68 @@ public class PatientDAO {
             e.printStackTrace();
         }
         return count;
+    }
+
+    public int getPatientIdByName(String name) {
+        int id = 0;
+        try {
+            Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(
+                    "SELECT id FROM patients WHERE name=?"
+            );
+            ps.setString(1, name);
+
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+                id = rs.getInt("id");
+            }
+
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        return id;
+    }
+
+    public int getPatientIdByUserEmail(String email) {
+        int id = 0;
+        try {
+            Connection con = DBConnection.getConnection();
+
+            PreparedStatement ps = con.prepareStatement(
+                    "SELECT id FROM patients WHERE name = (SELECT name FROM users WHERE email = ?)"
+            );
+
+            ps.setString(1, email);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                id = rs.getInt("id");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return id;
+    }
+
+
+    public int getPatientIdByUserId(int userId) {
+        int id = 0;
+        try {
+            Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(
+                    "SELECT id FROM patients WHERE user_id=?"
+            );
+            ps.setInt(1, userId);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                id = rs.getInt("id");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return id;
     }
 }

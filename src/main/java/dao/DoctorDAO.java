@@ -12,17 +12,25 @@ public class DoctorDAO {
 
     public boolean addDoctor(Doctor doctor) {
         boolean status = false;
+
         try (Connection con = DBConnection.getConnection()) {
-            String sql = "INSERT INTO doctors(name, specialization, phone) VALUES(?,?,?)";
+
+            String sql = "INSERT INTO doctors(name, specialization, phone, user_id) VALUES(?,?,?,?)";
             PreparedStatement ps = con.prepareStatement(sql);
+
             ps.setString(1, doctor.getName());
             ps.setString(2, doctor.getSpecialization());
             ps.setString(3, doctor.getPhone());
+            ps.setInt(4, doctor.getUserId());   // 🔥 FIX
+
             int i = ps.executeUpdate();
+
             if (i > 0) status = true;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return status;
     }
 
@@ -38,6 +46,7 @@ public class DoctorDAO {
                 d.setName(rs.getString("name"));
                 d.setSpecialization(rs.getString("specialization"));
                 d.setPhone(rs.getString("phone"));
+                d.setUserId(rs.getInt("user_id"));
                 list.add(d);
             }
         } catch (Exception e) {
@@ -46,51 +55,25 @@ public class DoctorDAO {
         return list;
     }
 
-    public boolean deleteDoctorById(int id) {
-        boolean status = false;
-        try (Connection con = DBConnection.getConnection()) {
-            String sql = "DELETE FROM doctors WHERE id = ?";
-            PreparedStatement ps = con.prepareStatement(sql);
+    public int getUserIdByDoctorId(int id) {
+        int userId = 0;
+        try {
+            Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(
+                    "SELECT user_id FROM doctors WHERE id=?"
+            );
             ps.setInt(1, id);
-            if(ps.executeUpdate() > 0) status = true;
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return status;
-    }
 
-    public boolean deleteDoctor(String name) {
-        boolean status = false;
-        try (Connection con = DBConnection.getConnection()) {
-            String sql = "DELETE FROM doctors WHERE name = ?";
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, name);
-            if(ps.executeUpdate() > 0) status = true;
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return status;
-    }
-
-    public Doctor getDoctorById(int id) {
-        Doctor d = null;
-        try (Connection con = DBConnection.getConnection()) {
-            String sql = "SELECT * FROM doctors WHERE id = ?";
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                d = new Doctor();
-                d.setId(rs.getInt("id"));
-                d.setName(rs.getString("name"));
-                d.setSpecialization(rs.getString("specialization"));
-                d.setPhone(rs.getString("phone"));
+            if(rs.next()){
+                userId = rs.getInt("user_id");
             }
-        } catch (Exception e) {
+        } catch(Exception e){
             e.printStackTrace();
         }
-        return d;
+        return userId;
     }
+
 
     // ✅ ADD THIS METHOD - Get doctor count
     public int getDoctorCount() {
@@ -106,5 +89,44 @@ public class DoctorDAO {
             e.printStackTrace();
         }
         return count;
+    }
+
+    public boolean deleteDoctor(int id) {
+        boolean status = false;
+
+        try {
+            Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(
+                    "DELETE FROM doctors WHERE id=?"
+            );
+            ps.setInt(1, id);
+
+            int i = ps.executeUpdate();
+            if(i > 0) status = true;
+
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        return status;
+    }
+
+    public int getDoctorIdByUserId(int userId) {
+        int id = 0;
+        try {
+            Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(
+                    "SELECT id FROM doctors WHERE user_id=?"
+            );
+            ps.setInt(1, userId);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                id = rs.getInt("id");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return id;
     }
 }

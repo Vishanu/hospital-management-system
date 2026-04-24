@@ -1,11 +1,13 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="dao.*" %>
+<%@ page session="true" %>
 
 <%
 String role = (String) session.getAttribute("role");
 String username = (String) session.getAttribute("user");
 
-if(role == null || !role.equals("ADMIN")){
+// 🔥 FIXED role
+if(role == null || !role.equals("admin")){
     response.sendRedirect("login.jsp");
     return;
 }
@@ -18,16 +20,11 @@ int appointmentCount = dDao.getCount("appointments");
 %>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard - Healix Hospital</title>
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System | Admin Dashboard</title>
 
     <style>
         * {
@@ -37,397 +34,473 @@ int appointmentCount = dDao.getCount("appointments");
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bbf0d3 100%);
             min-height: 100vh;
-            padding: 30px 20px;
+            padding: 40px 20px;
         }
 
-        .container {
-            max-width: 1300px;
+        /* Centered Container */
+        .dashboard-wrapper {
+            max-width: 1200px;
             margin: 0 auto;
         }
 
-        /* Header */
-        .header {
+        /* Card Style */
+        .card {
             background: white;
-            border-radius: 24px;
-            padding: 30px 35px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.15);
-            transition: transform 0.3s ease;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.2s ease;
         }
 
-        .header:hover {
+        .card:hover {
             transform: translateY(-3px);
         }
 
-        .header h1 {
-            color: #1e293b;
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
+        /* Header Section */
+        .card-header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5a7a 100%);
+            padding: 35px 40px 30px;
+            text-align: center;
         }
 
-        .header h1 i {
-            color: #667eea;
-            margin-right: 12px;
+        .hospital-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
         }
 
-        .header p {
-            color: #64748b;
-            margin-top: 10px;
+        .card-header h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            margin-bottom: 8px;
+        }
+
+        .card-header p {
+            color: rgba(255, 255, 255, 0.85);
             font-size: 14px;
+        }
+
+        /* Role Badge */
+        .role-badge {
+            background: rgba(255, 255, 255, 0.2);
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 13px;
+            margin-top: 15px;
             font-weight: 500;
+            backdrop-filter: blur(5px);
         }
 
-        .header p i {
-            color: #667eea;
-            margin-right: 6px;
+        /* Welcome Section */
+        .welcome-section {
+            background: linear-gradient(105deg, #e8f5e9 0%, #e0f2fe 100%);
+            padding: 25px 40px;
+            border-bottom: 1px solid rgba(46, 204, 113, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
-        /* Stats Cards */
-        .stats {
+        .welcome-text {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .welcome-icon {
+            font-size: 40px;
+        }
+
+        .welcome-text h2 {
+            color: #1e3a5f;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .welcome-text p {
+            color: #2c3e50;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .date-badge {
+            background: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e3a5f;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 25px;
-            margin-bottom: 40px;
+            padding: 35px 40px;
+            background: #f8fafc;
         }
 
         .stat-card {
             background: white;
-            border-radius: 24px;
-            padding: 28px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            cursor: pointer;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.2s ease;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
         .stat-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.2);
-        }
-
-        .stat-info h3 {
-            font-size: 42px;
-            font-weight: 800;
-            color: #1e293b;
-            letter-spacing: -1px;
-        }
-
-        .stat-info p {
-            color: #64748b;
-            margin-top: 8px;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .stat-info p i {
-            margin-right: 6px;
-            color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+            border-color: #2ecc71;
         }
 
         .stat-icon {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 20px;
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .stat-number {
+            font-size: 42px;
+            font-weight: 700;
+            color: #1e3a5f;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #5a6e7c;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        /* Content Sections */
+        .content-section {
+            padding: 0 40px 20px 40px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e3a5f;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
         }
 
-        .stat-icon i {
-            font-size: 32px;
-            color: white;
-        }
-
-        /* Section Title */
-        .section-title {
-            color: white;
+        .section-icon {
             font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 25px;
+        }
+
+        /* Grid Layout for Management and Actions */
+        .grid-2cols {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .grid-3cols {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .action-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 20px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: block;
+        }
+
+        .action-card:hover {
+            background: white;
+            border-color: #2ecc71;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .action-header {
             display: flex;
             align-items: center;
             gap: 12px;
+            margin-bottom: 10px;
         }
 
-        .section-title i {
-            font-size: 28px;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        .action-icon {
+            font-size: 32px;
         }
 
-        /* Management Cards */
-        .management-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 28px;
-            margin-bottom: 40px;
+        .action-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e3a5f;
         }
 
-        .card {
-            background: white;
-            border-radius: 24px;
-            padding: 32px 28px;
+        .action-desc {
+            font-size: 13px;
+            color: #5a6e7c;
+            line-height: 1.4;
+        }
+
+        /* Logout Section */
+        .logout-section {
+            padding: 20px 40px 35px 40px;
             text-align: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            border-top: 1px solid #e2e8f0;
+            margin-top: 10px;
         }
 
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px -12px rgba(0,0,0,0.2);
-        }
-
-        .card-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .card:hover .card-icon {
-            transform: scale(1.05);
-        }
-
-        .card-icon i {
-            font-size: 38px;
-            color: white;
-        }
-
-        .card h3 {
-            font-size: 22px;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 12px;
-        }
-
-        .card p {
-            color: #64748b;
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 25px;
-        }
-
-        .btn {
+        .btn-logout {
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            padding: 12px 28px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
+            background: #fee2e2;
+            color: #e74c3c;
             text-decoration: none;
+            padding: 12px 32px;
             border-radius: 40px;
             font-weight: 600;
             font-size: 14px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transition: all 0.2s ease;
+            border: 1px solid #fecaca;
         }
 
-        .btn:hover {
-            transform: translateX(5px);
-            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.4);
+        .btn-logout:hover {
+            background: #fecaca;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
         }
 
-        /* Summary Cards */
-        .summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .summary-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 28px;
+        /* Footer */
+        .footer {
             text-align: center;
-            color: #1e293b;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-
-        .summary-card:hover {
-            transform: translateY(-5px);
+            padding: 20px 40px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #5a6e7c;
             background: white;
-        }
-
-        .summary-card h3 {
-            font-size: 38px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .summary-card p {
-            font-size: 14px;
-            font-weight: 500;
-            color: #64748b;
-        }
-
-        .summary-card p i {
-            margin-right: 6px;
-            color: #667eea;
-        }
-
-        /* Nav Links */
-        .nav-links {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 25px;
-            border-top: 2px solid rgba(255,255,255,0.2);
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            flex-wrap: wrap;
-        }
-
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(5px);
-        }
-
-        .nav-links a:hover {
-            background: rgba(255,255,255,0.25);
-            transform: translateY(-2px);
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            body {
-                padding: 20px 15px;
+            .stats-grid {
+                padding: 25px;
+                gap: 18px;
             }
 
-            .stats {
-                grid-template-columns: 1fr;
+            .content-section {
+                padding: 0 25px 20px 25px;
             }
 
-            .management-grid {
-                grid-template-columns: 1fr;
+            .welcome-section {
+                padding: 20px 25px;
+                flex-direction: column;
+                text-align: center;
             }
 
-            .summary {
-                grid-template-columns: 1fr;
+            .welcome-text {
+                flex-direction: column;
             }
 
-            .header h1 {
-                font-size: 24px;
+            .card-header {
+                padding: 25px 20px;
             }
 
-            .stat-info h3 {
+            .card-header h1 {
+                font-size: 22px;
+            }
+
+            .logout-section {
+                padding: 20px 25px 30px 25px;
+            }
+
+            .footer {
+                padding: 20px 25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stat-number {
                 font-size: 32px;
             }
 
-            .nav-links {
-                gap: 12px;
+            .stat-icon {
+                font-size: 36px;
             }
 
-            .nav-links a {
-                padding: 8px 16px;
-                font-size: 12px;
+            .grid-2cols, .grid-3cols {
+                grid-template-columns: 1fr;
             }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: fadeIn 0.4s ease-out;
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1><i class="fas fa-user-shield"></i> Welcome, <%= username != null ? username : "Admin" %>!</h1>
-            <p><i class="fas fa-calendar-alt"></i> <%= new java.text.SimpleDateFormat("EEEE, MMMM d, yyyy").format(new java.util.Date()) %></p>
+
+<div class="dashboard-wrapper">
+    <div class="card">
+
+        <!-- Header Section -->
+        <div class="card-header">
+            <div class="hospital-icon">🏥</div>
+            <h1>Hospital Management System</h1>
+            <p>Centralized Healthcare Administration Platform</p>
+            <div class="role-badge">👑 Administrator Access</div>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-info">
-                    <h3><%= doctorCount %></h3>
-                    <p><i class="fas fa-user-md"></i> Total Doctors</p>
+        <!-- Welcome Section with Dynamic Data -->
+        <div class="welcome-section">
+            <div class="welcome-text">
+                <div class="welcome-icon">👋</div>
+                <div>
+                    <h2>Welcome, <%= username != null ? username : "Admin" %></h2>
+                    <p>You have full access to manage hospital operations</p>
                 </div>
-                <div class="stat-icon"><i class="fas fa-stethoscope"></i></div>
+            </div>
+            <div class="date-badge">
+                📅 <%= new java.text.SimpleDateFormat("dd-MM-yyyy").format(new java.util.Date()) %>
+            </div>
+        </div>
+
+        <!-- Statistics Section - Dynamic Counts -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👨‍⚕️</div>
+                <div class="stat-number"><%= doctorCount %></div>
+                <div class="stat-label">Total Doctors</div>
             </div>
             <div class="stat-card">
-                <div class="stat-info">
-                    <h3><%= patientCount %></h3>
-                    <p><i class="fas fa-users"></i> Total Patients</p>
-                </div>
-                <div class="stat-icon"><i class="fas fa-procedures"></i></div>
+                <div class="stat-icon">🏥</div>
+                <div class="stat-number"><%= patientCount %></div>
+                <div class="stat-label">Total Patients</div>
             </div>
             <div class="stat-card">
-                <div class="stat-info">
-                    <h3><%= appointmentCount %></h3>
-                    <p><i class="fas fa-calendar-check"></i> Appointments</p>
-                </div>
-                <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+                <div class="stat-icon">📅</div>
+                <div class="stat-number"><%= appointmentCount %></div>
+                <div class="stat-label">Total Appointments</div>
             </div>
         </div>
 
-        <!-- Quick Navigation -->
-        <div class="section-title"><i class="fas fa-bolt"></i> Quick Navigation</div>
+        <!-- Management Section -->
+        <div class="content-section">
+            <div class="section-title">
+                <span class="section-icon">⚙️</span>
+                <span>Management Tools</span>
+            </div>
 
-        <div class="management-grid">
-            <div class="card">
-                <div class="card-icon"><i class="fas fa-user-md"></i></div>
-                <h3>Doctor Management</h3>
-                <p>Add new doctors, view all doctors, and manage medical staff efficiently</p>
-                <a href="viewDoctors.jsp" class="btn">Manage Doctors <i class="fas fa-arrow-right"></i></a>
-            </div>
-            <div class="card">
-                <div class="card-icon"><i class="fas fa-procedures"></i></div>
-                <h3>Patient Management</h3>
-                <p>Admit new patients, view all patients, and manage health records</p>
-                <a href="viewPatients.jsp" class="btn">Manage Patients <i class="fas fa-arrow-right"></i></a>
-            </div>
-            <div class="card">
-                <div class="card-icon"><i class="fas fa-calendar-alt"></i></div>
-                <h3>Appointment Management</h3>
-                <p>Book appointments, view schedules, and manage all appointments</p>
-                <a href="viewAppointments.jsp" class="btn">Manage Appointments <i class="fas fa-arrow-right"></i></a>
+            <div class="grid-2cols">
+                <a href="viewDoctors.jsp" class="action-card">
+                    <div class="action-header">
+                        <div class="action-icon">👨‍⚕️</div>
+                        <div class="action-title">Manage Doctors</div>
+                    </div>
+                    <div class="action-desc">View, update, and manage all doctor records in the system</div>
+                </a>
+
+                <a href="viewPatients.jsp" class="action-card">
+                    <div class="action-header">
+                        <div class="action-icon">🏥</div>
+                        <div class="action-title">Manage Patients</div>
+                    </div>
+                    <div class="action-desc">Access complete patient directory and medical records</div>
+                </a>
+
+                <a href="viewAppointments.jsp" class="action-card">
+                    <div class="action-header">
+                        <div class="action-icon">📅</div>
+                        <div class="action-title">Manage Appointments</div>
+                    </div>
+                    <div class="action-desc">Schedule and track all patient appointments</div>
+                </a>
             </div>
         </div>
 
-        <!-- Summary -->
-        <div class="summary">
-            <div class="summary-card">
-                <h3><%= doctorCount + patientCount %></h3>
-                <p><i class="fas fa-users"></i> Total People Registered</p>
+        <!-- Quick Actions Section -->
+        <div class="content-section">
+            <div class="section-title">
+                <span class="section-icon">⚡</span>
+                <span>Quick Actions</span>
             </div>
-            <div class="summary-card">
-                <h3><%= (doctorCount > 0 && patientCount > 0) ? Math.round((double)appointmentCount / (doctorCount + patientCount) * 100) : 0 %>%</h3>
-                <p><i class="fas fa-chart-line"></i> Hospital Engagement Rate</p>
+
+            <div class="grid-3cols">
+                <a href="addDoctor.jsp" class="action-card">
+                    <div class="action-header">
+                        <div class="action-icon">➕</div>
+                        <div class="action-title">Add Doctor</div>
+                    </div>
+                    <div class="action-desc">Register new medical staff to the hospital</div>
+                </a>
+
+                <a href="addPatient.jsp" class="action-card">
+                    <div class="action-header">
+                        <div class="action-icon">🏨</div>
+                        <div class="action-title">Admit Patient</div>
+                    </div>
+                    <div class="action-desc">Admit a new patient to the hospital</div>
+                </a>
+
+                <a href="bookAppointment.jsp" class="action-card">
+                    <div class="action-header">
+                        <div class="action-icon">📝</div>
+                        <div class="action-title">Book Appointment</div>
+                    </div>
+                    <div class="action-desc">Schedule appointments for patients</div>
+                </a>
             </div>
         </div>
 
-        <!-- Navigation Links -->
-        <div class="nav-links">
-            <a href="addDoctor.jsp"><i class="fas fa-plus-circle"></i> Add Doctor</a>
-            <a href="addPatient.jsp"><i class="fas fa-procedures"></i> Admit Patient</a>
-            <a href="bookAppointment.jsp"><i class="fas fa-calendar-plus"></i> Book Appointment</a>
-            <a href="logout.jsp"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        <!-- Logout Section -->
+        <div class="logout-section">
+            <a href="logout.jsp" class="btn-logout">
+                🚪 Logout from System
+            </a>
         </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2024 Hospital Management System | Secure Admin Portal</p>
+        </div>
+
     </div>
+</div>
+
 </body>
 </html>

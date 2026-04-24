@@ -5,7 +5,10 @@ public class Doctor {
     private String name;
     private String specialization;
     private String phone;
+    private int userId;
 
+    public int getUserId() { return userId; }
+    public void setUserId(int userId) { this.userId = userId; }
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

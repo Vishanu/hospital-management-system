@@ -1,346 +1,423 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page session="true" %>
+
 <%
 String role = (String) session.getAttribute("role");
+
 if(role == null || !role.equals("doctor")){
     response.sendRedirect("login.jsp");
+    return; // 🔥 MUST ADD
 }
 %>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Doctor Dashboard | Hospital Management</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System | Doctor Dashboard</title>
 
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-
-<!-- Font Awesome Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Inter', sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-        margin: 0;
-        position: relative;
-    }
-
-    /* Background pattern */
-    body::before {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path fill="rgba(255,255,255,0.05)" d="M100 0L0 100h200zM0 100l100 100 100-100z"/><circle fill="rgba(255,255,255,0.03)" cx="100" cy="100" r="80"/></svg>');
-        background-size: 40px;
-        pointer-events: none;
-    }
-
-    .container {
-        background: white;
-        border-radius: 32px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
-        padding: 50px 40px;
-        width: 100%;
-        max-width: 600px;
-        text-align: center;
-        transition: all 0.3s ease;
-        position: relative;
-        z-index: 1;
-    }
-
-    .container:hover {
-        transform: translateY(-8px);
-    }
-
-    /* Doctor Avatar */
-    .doctor-avatar {
-        width: 100px;
-        height: 100px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 20px;
-        box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4);
-    }
-
-    .doctor-avatar i {
-        font-size: 50px;
-        color: white;
-    }
-
-    h2 {
-        color: #1e293b;
-        font-size: 32px;
-        font-weight: 800;
-        margin-bottom: 10px;
-        letter-spacing: -0.5px;
-    }
-
-    .welcome-badge {
-        background: #dbeafe;
-        color: #1e40af;
-        font-size: 14px;
-        font-weight: 600;
-        padding: 6px 16px;
-        border-radius: 40px;
-        display: inline-block;
-        margin-bottom: 30px;
-    }
-
-    .dashboard-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-        margin: 35px 0;
-    }
-
-    .dashboard-card {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 22px 28px;
-        background: #f8fafc;
-        border: 2px solid #e2e8f0;
-        border-radius: 20px;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .dashboard-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
-        transition: left 0.5s ease;
-    }
-
-    .dashboard-card:hover::before {
-        left: 100%;
-    }
-
-    .dashboard-card:hover {
-        background: white;
-        border-color: #667eea;
-        transform: translateX(10px);
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
-    }
-
-    .card-icon {
-        width: 55px;
-        height: 55px;
-        background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-        border-radius: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .card-icon i {
-        font-size: 28px;
-        color: #667eea;
-    }
-
-    .card-content {
-        flex: 1;
-        text-align: left;
-        margin-left: 20px;
-    }
-
-    .card-title {
-        font-size: 20px;
-        font-weight: 700;
-        color: #1e293b;
-        margin-bottom: 5px;
-    }
-
-    .card-subtitle {
-        font-size: 13px;
-        color: #64748b;
-    }
-
-    .card-arrow {
-        color: #94a3b8;
-        font-size: 20px;
-        transition: all 0.3s ease;
-    }
-
-    .dashboard-card:hover .card-arrow {
-        color: #667eea;
-        transform: translateX(5px);
-    }
-
-    /* Stats Section */
-    .stats-section {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        margin: 25px 0;
-        flex-wrap: wrap;
-    }
-
-    .stat-item {
-        background: #f1f5f9;
-        padding: 12px 20px;
-        border-radius: 50px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 13px;
-        font-weight: 500;
-        color: #475569;
-    }
-
-    .stat-item i {
-        color: #667eea;
-        font-size: 14px;
-    }
-
-    /* Logout Button */
-    .logout-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        background: #fee2e2;
-        color: #dc2626;
-        padding: 14px 32px;
-        border-radius: 50px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 15px;
-        transition: all 0.3s ease;
-        margin-top: 20px;
-        border: none;
-        cursor: pointer;
-    }
-
-    .logout-btn:hover {
-        background: #dc2626;
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(220, 38, 38, 0.3);
-    }
-
-    /* Quote Section */
-    .quote {
-        margin-top: 30px;
-        padding-top: 20px;
-        border-top: 2px solid #e2e8f0;
-        font-size: 12px;
-        color: #94a3b8;
-    }
-
-    .quote i {
-        color: #f59e0b;
-        margin: 0 4px;
-    }
-
-    /* Responsive */
-    @media (max-width: 500px) {
-        .container {
-            padding: 35px 20px;
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        h2 {
-            font-size: 26px;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bbf0d3 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
         }
 
-        .dashboard-card {
-            padding: 16px 20px;
+        /* Centered Container */
+        .dashboard-wrapper {
+            max-width: 700px;
+            margin: 0 auto;
         }
 
-        .card-title {
-            font-size: 16px;
+        /* Card Style */
+        .card {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.2s ease;
         }
 
-        .card-icon {
-            width: 45px;
-            height: 45px;
+        .card:hover {
+            transform: translateY(-3px);
         }
 
-        .card-icon i {
-            font-size: 22px;
+        /* Header Section */
+        .card-header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5a7a 100%);
+            padding: 35px 35px 30px;
+            text-align: center;
+            position: relative;
         }
 
+        .doctor-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+        }
+
+        .card-header h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            margin-bottom: 8px;
+        }
+
+        .card-header p {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 14px;
+        }
+
+        /* Role Badge */
+        .role-badge {
+            background: rgba(255, 255, 255, 0.2);
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 13px;
+            margin-top: 15px;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            background: linear-gradient(105deg, #e8f5e9 0%, #e0f2fe 100%);
+            padding: 25px 35px;
+            border-bottom: 1px solid rgba(46, 204, 113, 0.2);
+        }
+
+        .welcome-text {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .welcome-icon {
+            font-size: 40px;
+        }
+
+        .welcome-text h2 {
+            color: #1e3a5f;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .welcome-text p {
+            color: #2c3e50;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Quick Stats Section */
         .stats-section {
-            gap: 12px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: #e2e8f0;
+            margin: 0;
         }
 
-        .stat-item {
-            padding: 8px 14px;
-            font-size: 11px;
+        .stat-card {
+            background: white;
+            padding: 25px 15px;
+            text-align: center;
+            transition: all 0.2s ease;
         }
-    }
-</style>
 
+        .stat-card:hover {
+            background: #f8fafc;
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e3a5f;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #5a6e7c;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Menu Section */
+        .menu-section {
+            padding: 35px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e3a5f;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title:before {
+            content: "⚕️";
+            font-size: 20px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .menu-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 22px 25px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .menu-card:hover {
+            background: white;
+            border-color: #2ecc71;
+            transform: translateX(5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .menu-icon {
+            font-size: 42px;
+        }
+
+        .menu-content {
+            flex: 1;
+        }
+
+        .menu-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e3a5f;
+            margin-bottom: 5px;
+        }
+
+        .menu-desc {
+            font-size: 13px;
+            color: #5a6e7c;
+        }
+
+        .menu-arrow {
+            font-size: 20px;
+            color: #2ecc71;
+            transition: transform 0.2s ease;
+        }
+
+        .menu-card:hover .menu-arrow {
+            transform: translateX(5px);
+        }
+
+        /* Logout Section */
+        .logout-section {
+            padding: 0 35px 35px 35px;
+            text-align: center;
+        }
+
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #fee2e2;
+            color: #e74c3c;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            border: 1px solid #fecaca;
+        }
+
+        .btn-logout:hover {
+            background: #fecaca;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px 35px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #5a6e7c;
+        }
+
+        /* Info Note */
+        .info-note {
+            background: #e8f4fd;
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #1e3a5f;
+            text-align: center;
+            margin: 0 35px 20px 35px;
+        }
+
+        /* Responsive */
+        @media (max-width: 550px) {
+            .stats-section {
+                grid-template-columns: 1fr;
+                gap: 1px;
+            }
+
+            .card-header h1 {
+                font-size: 22px;
+            }
+
+            .welcome-text {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .menu-section {
+                padding: 25px;
+            }
+
+            .logout-section {
+                padding: 0 25px 25px 25px;
+            }
+
+            .info-note {
+                margin: 0 25px 15px 25px;
+            }
+
+            .menu-card {
+                padding: 18px 20px;
+            }
+
+            .menu-icon {
+                font-size: 32px;
+            }
+
+            .menu-title {
+                font-size: 16px;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: fadeIn 0.4s ease-out;
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="container">
+<div class="dashboard-wrapper">
+    <div class="card">
 
-    <div class="doctor-avatar">
-        <i class="fas fa-user-md"></i>
-    </div>
-
-    <h2>Doctor Dashboard</h2>
-    <div class="welcome-badge">
-        <i class="fas fa-stethoscope"></i> Welcome Doctor
-    </div>
-
-    <div class="dashboard-grid">
-        <a href="viewAppointments.jsp" class="dashboard-card">
-            <div class="card-icon">
-                <i class="fas fa-calendar-check"></i>
-            </div>
-            <div class="card-content">
-                <div class="card-title">View Appointments</div>
-                <div class="card-subtitle">Check your scheduled appointments</div>
-            </div>
-            <div class="card-arrow">
-                <i class="fas fa-chevron-right"></i>
-            </div>
-        </a>
-    </div>
-
-    <div class="stats-section">
-        <div class="stat-item">
-            <i class="fas fa-clock"></i> Today's Schedule
+        <!-- Header Section -->
+        <div class="card-header">
+            <div class="doctor-icon">👨‍⚕️</div>
+            <h1>Hospital Management System</h1>
+            <p>Doctor Portal - Patient Care Management</p>
+            <div class="role-badge">⚕️ Medical Professional Access</div>
         </div>
-        <div class="stat-item">
-            <i class="fas fa-chart-line"></i> Active Session
+
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="welcome-text">
+                <div class="welcome-icon">👋</div>
+                <div>
+                    <h2>Welcome, Doctor</h2>
+                    <p>Manage your appointments and provide quality care to patients</p>
+                </div>
+            </div>
         </div>
-        <div class="stat-item">
-            <i class="fas fa-shield-alt"></i> Secure Access
+
+        <!-- Quick Stats Overview (Visual enhancement only) -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-number">+</div>
+                <div class="stat-label">Today's Appointments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-number">+</div>
+                <div class="stat-label">Total Appointments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-number">Active</div>
+                <div class="stat-label">Session</div>
+            </div>
         </div>
+
+        <!-- Menu Section -->
+        <div class="menu-section">
+            <div class="section-title">Quick Actions</div>
+
+            <div class="menu-grid">
+                <!-- View Appointments -->
+                <a href="viewAppointments.jsp" class="menu-card">
+                    <div class="menu-icon">📋</div>
+                    <div class="menu-content">
+                        <div class="menu-title">View Appointments</div>
+                        <div class="menu-desc">Check your scheduled appointments and patient list</div>
+                    </div>
+                    <div class="menu-arrow">→</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Info Note -->
+        <div class="info-note">
+            💡 You can view all your upcoming and past appointments here. Click on any appointment to see patient details.
+        </div>
+
+        <!-- Logout Section -->
+        <div class="logout-section">
+            <a href="logout.jsp" class="btn-logout">
+                🚪 Logout from System
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2024 Hospital Management System | Secure Doctor Portal</p>
+        </div>
+
     </div>
-
-    <a href="logout.jsp" class="logout-btn">
-        <i class="fas fa-sign-out-alt"></i> Logout
-    </a>
-
-    <div class="quote">
-        <i class="fas fa-heartbeat"></i> "Healing hands, caring hearts" <i class="fas fa-heartbeat"></i>
-    </div>
-
 </div>
 
 </body>

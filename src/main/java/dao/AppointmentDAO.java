@@ -53,29 +53,32 @@ public class AppointmentDAO {
 
     public List<Appointment> getAppointmentsByPatientId(int patientId) {
         List<Appointment> list = new ArrayList<>();
-        String sql = "SELECT a.id, a.patient_id, a.doctor_id, a.appointment_date, a.status, " +
-                "d.name as doctor_name " +
-                "FROM appointments a " +
-                "JOIN doctors d ON a.doctor_id = d.id " +
-                "WHERE a.patient_id = ? " +
-                "ORDER BY a.appointment_date DESC";
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+
+        try {
+            Connection con = DBConnection.getConnection();
+
+            PreparedStatement ps = con.prepareStatement(
+                    "SELECT a.*, d.name FROM appointments a JOIN doctors d ON a.doctor_id = d.id WHERE a.patient_id=?"
+            );
+
             ps.setInt(1, patientId);
+
             ResultSet rs = ps.executeQuery();
+
             while (rs.next()) {
-                Appointment a = new Appointment();
-                a.setId(rs.getInt("id"));
-                a.setPatientId(rs.getInt("patient_id"));
-                a.setDoctorId(rs.getInt("doctor_id"));
-                a.setDoctorName(rs.getString("doctor_name"));
-                a.setAppointmentDate(rs.getString("appointment_date"));
-                a.setStatus(rs.getString("status"));
-                list.add(a);
+                Appointment ap = new Appointment();
+                ap.setId(rs.getInt("id"));
+                ap.setDoctorName(rs.getString("name"));
+                ap.setAppointmentDate(rs.getString("appointment_date"));
+                ap.setStatus(rs.getString("status"));
+
+                list.add(ap);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return list;
     }
 

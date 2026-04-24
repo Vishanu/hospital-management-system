@@ -24,10 +24,6 @@ public class Login extends HttpServlet {
 // 🔥 IMPORTANT
         int id = dao.getUserId(email);
 
-// 🔥 DEBUG (temporary)
-        System.out.println("LOGIN EMAIL = " + email);
-        System.out.println("USER ID FROM DB = " + id);
-
         session.setAttribute("userId", id);
         session.setAttribute("role", role);
         session.setAttribute("email", email);

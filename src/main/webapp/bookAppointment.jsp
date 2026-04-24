@@ -1,4 +1,6 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.*, dao.DoctorDAO, model.Doctor" %>
+<%@ page session="true" %>
 
 <%
 String role = (String) session.getAttribute("role");
@@ -8,321 +10,436 @@ if(role == null || !role.equals("patient")){
     return;
 }
 
-// 🔥 Fetch all doctors
+// Fetch doctors
 DoctorDAO dao = new DoctorDAO();
 List<Doctor> doctors = dao.getAllDoctors();
 %>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Book Appointment | Hospital Management</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System | Book Appointment</title>
 
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-
-<!-- Font Awesome Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Inter', sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-        margin: 0;
-    }
-
-    .container {
-        background: white;
-        border-radius: 28px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
-        padding: 45px 40px;
-        width: 100%;
-        max-width: 550px;
-        transition: transform 0.3s ease;
-        border: none;
-        display: block;
-    }
-
-    .container:hover {
-        transform: translateY(-5px);
-    }
-
-    h2 {
-        color: #1e293b;
-        font-size: 32px;
-        font-weight: 700;
-        margin-bottom: 15px;
-        text-align: center;
-        position: relative;
-        padding-bottom: 15px;
-    }
-
-    h2 i {
-        color: #667eea;
-        margin-right: 12px;
-    }
-
-    h2:after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 70px;
-        height: 4px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 2px;
-    }
-
-    .subtitle {
-        text-align: center;
-        color: #64748b;
-        font-size: 14px;
-        margin-bottom: 30px;
-    }
-
-    select, input {
-        width: 100%;
-        padding: 14px 16px;
-        margin: 10px 0;
-        border: 2px solid #e2e8f0;
-        border-radius: 14px;
-        font-size: 15px;
-        font-family: 'Inter', sans-serif;
-        transition: all 0.3s ease;
-        background: #f8fafc;
-        cursor: pointer;
-    }
-
-    select {
-        appearance: none;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%2364748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
-        background-repeat: no-repeat;
-        background-position: right 16px center;
-    }
-
-    input[type="date"] {
-        cursor: pointer;
-    }
-
-    input[type="date"]::-webkit-calendar-picker-indicator {
-        cursor: pointer;
-        filter: invert(0.5);
-    }
-
-    select:focus, input:focus {
-        outline: none;
-        border-color: #667eea;
-        background: white;
-        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-    }
-
-    button {
-        width: 100%;
-        padding: 14px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 14px;
-        font-size: 16px;
-        font-weight: 600;
-        font-family: 'Inter', sans-serif;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 20px;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    }
-
-    button:hover {
-        background: linear-gradient(135deg, #5a67d8 0%, #6b46a0 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-    }
-
-    button:active {
-        transform: translateY(0);
-    }
-
-    button i {
-        margin-right: 8px;
-    }
-
-    .error {
-        color: #dc2626;
-        background: #fee2e2;
-        padding: 14px;
-        border-radius: 12px;
-        margin: 15px 0;
-        text-align: center;
-        font-weight: 500;
-        font-size: 14px;
-        border-left: 4px solid #dc2626;
-        animation: shake 0.3s ease;
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
-    }
-
-    .back-link {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 25px;
-        color: #667eea;
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 14px;
-        transition: all 0.3s ease;
-        padding: 10px 20px;
-        border-radius: 40px;
-        background: #f1f5f9;
-    }
-
-    .back-link:hover {
-        background: #e2e8f0;
-        color: #5a67d8;
-        transform: translateX(-5px);
-    }
-
-    /* Doctor count badge */
-    .doctor-count {
-        display: inline-block;
-        background: #dbeafe;
-        color: #1e40af;
-        font-size: 12px;
-        font-weight: 600;
-        padding: 4px 12px;
-        border-radius: 40px;
-        margin-left: 10px;
-    }
-
-    .info-note {
-        background: #fef3c7;
-        border-left: 4px solid #f59e0b;
-        padding: 12px;
-        margin-top: 20px;
-        border-radius: 10px;
-        font-size: 12px;
-        color: #92400e;
-        text-align: left;
-    }
-
-    .info-note i {
-        margin-right: 8px;
-        color: #f59e0b;
-    }
-
-    /* Responsive */
-    @media (max-width: 600px) {
-        .container {
-            padding: 30px 20px;
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        h2 {
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bbf0d3 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* Centered Container */
+        .appointment-wrapper {
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        /* Card Style */
+        .card {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        /* Header Section */
+        .card-header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5a7a 100%);
+            padding: 30px 35px;
+            text-align: center;
+        }
+
+        .hospital-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .card-header h1 {
+            color: white;
             font-size: 26px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            margin-bottom: 8px;
         }
 
-        select, input, button {
-            padding: 12px 14px;
+        .card-header p {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 14px;
         }
-    }
-</style>
 
-<script>
-function validateForm() {
-    let doctor = document.forms["form"]["doctorId"].value;
-    let date = document.forms["form"]["date"].value;
+        /* Role Badge */
+        .role-badge {
+            background: rgba(255, 255, 255, 0.2);
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 40px;
+            font-size: 12px;
+            margin-top: 12px;
+            font-weight: 500;
+        }
 
-    if (doctor === "") {
-        alert("⚠️ Please select a doctor");
-        return false;
-    }
+        /* Form Body */
+        .card-body {
+            padding: 35px;
+        }
 
-    if (date === "") {
-        alert("📅 Please select a date");
-        return false;
-    }
+        .form-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e3a5f;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    // Optional: Check if date is not in past
-    let selectedDate = new Date(date);
-    let today = new Date();
-    today.setHours(0, 0, 0, 0);
+        .form-subtitle {
+            color: #5a6e7c;
+            font-size: 14px;
+            margin-bottom: 28px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
 
-    if (selectedDate < today) {
-        alert("📅 Please select today or a future date");
-        return false;
-    }
+        /* Doctor Stats Card */
+        .stats-card {
+            background: linear-gradient(105deg, #e8f5e9 0%, #e0f2fe 100%);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 28px;
+            border: 1px solid rgba(46, 204, 113, 0.2);
+        }
 
-    return true;
-}
-</script>
+        .stats-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1e3a5f;
+            margin-bottom: 5px;
+        }
 
+        .stats-label {
+            color: #2c3e50;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Form Layout */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group label i {
+            margin-right: 6px;
+        }
+
+        .required:after {
+            content: " *";
+            color: #e74c3c;
+        }
+
+        .input-group select,
+        .input-group input[type="date"] {
+            padding: 12px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            background: #f8fafc;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .input-group select:focus,
+        .input-group input[type="date"]:focus {
+            border-color: #2ecc71;
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+            background: white;
+        }
+
+        /* Button */
+        .btn-book {
+            width: 100%;
+            background: linear-gradient(105deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+            font-family: inherit;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-book:hover {
+            background: linear-gradient(105deg, #27ae60 0%, #219a52 100%);
+            transform: scale(1.02);
+            box-shadow: 0 8px 18px rgba(46, 204, 113, 0.3);
+        }
+
+        .btn-book:active {
+            transform: scale(0.98);
+        }
+
+        /* Error Messages */
+        .error-message {
+            background: #fee2e2;
+            border-left: 4px solid #e74c3c;
+            padding: 14px 18px;
+            border-radius: 14px;
+            margin: 20px 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .error-message span {
+            color: #c0392b;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .warning-message {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 14px 18px;
+            border-radius: 14px;
+            margin: 20px 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .warning-message span {
+            color: #856404;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Info Note */
+        .info-note {
+            background: #e8f4fd;
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #1e3a5f;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Back Link */
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .back-link a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 550px) {
+            .card-body {
+                padding: 25px;
+            }
+
+            .card-header h1 {
+                font-size: 22px;
+            }
+
+            .form-title {
+                font-size: 20px;
+            }
+
+            .stats-number {
+                font-size: 28px;
+            }
+        }
+    </style>
+
+    <script>
+        function validateForm() {
+            let doctor = document.forms["form"]["doctorId"].value;
+            let date = document.forms["form"]["date"].value;
+
+            if (doctor === "") {
+                alert("Please select a doctor");
+                return false;
+            }
+
+            if (date === "") {
+                alert("Please select a date");
+                return false;
+            }
+
+            let selectedDate = new Date(date);
+            let today = new Date();
+            today.setHours(0,0,0,0);
+
+            if (selectedDate < today) {
+                alert("Select today or future date");
+                return false;
+            }
+
+            return true;
+        }
+    </script>
 </head>
 
 <body>
 
-<div class="container">
+<div class="appointment-wrapper">
+    <div class="card">
 
-<h2><i class="fas fa-calendar-plus"></i> Book Appointment</h2>
-<div class="subtitle">
-    <i class="fas fa-stethoscope"></i> Select your preferred doctor and date
-    <span class="doctor-count"><i class="fas fa-user-md"></i> <%= doctors.size() %> Doctors Available</span>
-</div>
+        <!-- Header Section -->
+        <div class="card-header">
+            <div class="hospital-icon">📅</div>
+            <h1>Hospital Management System</h1>
+            <p>Patient Portal - Appointment Booking</p>
+            <div class="role-badge">👤 Patient Access</div>
+        </div>
 
-<form name="form" action="bookAppointment" method="post" onsubmit="return validateForm()">
+        <!-- Form Body -->
+        <div class="card-body">
+            <div class="form-title">
+                🏥 Book New Appointment
+            </div>
+            <div class="form-subtitle">
+                Schedule your consultation with our medical experts
+            </div>
 
-    <!-- 🔥 Doctor Dropdown -->
-    <select name="doctorId" required>
-        <option value="" disabled selected>-- 👨‍⚕️ Select Doctor --</option>
+            <!-- Doctor Statistics - JSP logic preserved -->
+            <div class="stats-card">
+                <div class="stats-number"><%= doctors.size() %></div>
+                <div class="stats-label">👨‍⚕️ Doctors Available</div>
+            </div>
 
-        <%
-        for(Doctor d : doctors){
-        %>
-        <option value="<%= d.getId() %>">
-            🩺 <%= d.getName() %> - <%= d.getSpecialization() %>
-        </option>
-        <%
-        }
-        %>
+            <!-- Booking Form - All backend logic preserved -->
+            <form name="form" action="bookAppointment" method="post" onsubmit="return validateForm()">
 
-    </select>
+                <!-- Doctor Selection -->
+                <div class="form-group">
+                    <div class="input-group">
+                        <label><i>👨‍⚕️</i> <span class="required">Select Doctor</span></label>
+                        <select name="doctorId" required>
+                            <option value="">-- Select Doctor --</option>
+                            <%
+                            for(Doctor d : doctors){
+                            %>
+                            <option value="<%= d.getId() %>">
+                                <%= d.getName() %> - <%= d.getSpecialization() %>
+                            </option>
+                            <%
+                            }
+                            %>
+                        </select>
+                    </div>
+                </div>
 
-    <!-- Date -->
-    <input type="date" name="date" required placeholder="Select Date">
+                <!-- Appointment Date -->
+                <div class="form-group">
+                    <div class="input-group">
+                        <label><i>📅</i> <span class="required">Appointment Date</span></label>
+                        <input type="date" name="date" required>
+                    </div>
+                </div>
 
-    <button type="submit"><i class="fas fa-check-circle"></i> Book Appointment</button>
+                <button type="submit" class="btn-book">✓ Confirm Appointment</button>
 
-</form>
+            </form>
 
-<br>
+            <!-- Error Messages - ALL JSP LOGIC PRESERVED -->
+            <%
+            String error = request.getParameter("error");
 
-<% if(request.getParameter("error") != null){ %>
-<p class="error"><i class="fas fa-exclamation-triangle"></i> Something went wrong! Please try again.</p>
-<% } %>
+            if ("invalid".equals(error)) {
+            %>
+            <div class="error-message">
+                <span>⚠️</span>
+                <span>Please fill all fields properly!</span>
+            </div>
+            <%
+            } else if ("invalidPatient".equals(error)) {
+            %>
+            <div class="error-message">
+                <span>⚠️</span>
+                <span>Patient not found! Please login again.</span>
+            </div>
+            <%
+            } else if ("exception".equals(error)) {
+            %>
+            <div class="error-message">
+                <span>❌</span>
+                <span>Server error! Please try again.</span>
+            </div>
+            <%
+            } else if ("failed".equals(error)) {
+            %>
+            <div class="error-message">
+                <span>❌</span>
+                <span>Failed to book appointment!</span>
+            </div>
+            <%
+            }
+            %>
 
-<div class="info-note">
-    <i class="fas fa-info-circle"></i>
-    <strong>Note:</strong> Appointment request will be confirmed by the admin. Please check your dashboard for status updates.
-</div>
+            <!-- Info Note -->
+            <div class="info-note">
+                ℹ️ Please select a future date for your appointment. You can only book appointments for today or later dates.
+            </div>
 
-<br>
-<a href="patientDashboard.jsp" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+            <!-- Back Link -->
+            <div class="back-link">
+                <a href="patientDashboard.jsp">← Back to Dashboard</a>
+            </div>
 
+        </div>
+    </div>
 </div>
 
 </body>

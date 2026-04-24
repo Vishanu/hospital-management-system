@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page session="true" %>
 
 <%
@@ -10,283 +11,420 @@ if(role == null || !role.equals("admin")){
 %>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Admin Dashboard | Hospital Management</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System | Admin Dashboard</title>
 
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-
-<!-- Font Awesome Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Inter', sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-        margin: 0;
-        position: relative;
-    }
-
-    /* Optional: Abstract background pattern */
-    body::before {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path fill="rgba(255,255,255,0.05)" d="M0 0h200v200H0z"/><path fill="rgba(255,255,255,0.05)" d="M100 0L0 100h200zM0 100l100 100 100-100z"/></svg>');
-        background-size: 30px;
-        pointer-events: none;
-    }
-
-    .container {
-        background: white;
-        border-radius: 32px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        padding: 50px 40px;
-        width: 100%;
-        max-width: 550px;
-        text-align: center;
-        transition: transform 0.3s ease;
-        position: relative;
-        z-index: 1;
-        border: none;
-        display: block;
-    }
-
-    .container:hover {
-        transform: translateY(-8px);
-    }
-
-    h2 {
-        color: #1e293b;
-        font-size: 36px;
-        font-weight: 800;
-        margin-bottom: 15px;
-        letter-spacing: -0.5px;
-    }
-
-    .welcome-text {
-        color: #64748b;
-        font-size: 16px;
-        margin-bottom: 40px;
-        padding-bottom: 20px;
-        border-bottom: 2px solid #e2e8f0;
-    }
-
-    .dashboard-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-bottom: 30px;
-    }
-
-    .dashboard-link {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 18px 24px;
-        background: #f8fafc;
-        border: 2px solid #e2e8f0;
-        border-radius: 16px;
-        text-decoration: none;
-        color: #1e293b;
-        font-weight: 600;
-        font-size: 16px;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .dashboard-link::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
-        transition: left 0.5s ease;
-    }
-
-    .dashboard-link:hover::before {
-        left: 100%;
-    }
-
-    .dashboard-link:hover {
-        background: white;
-        border-color: #667eea;
-        transform: translateX(8px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
-    }
-
-    .link-icon {
-        font-size: 24px;
-        width: 40px;
-        text-align: center;
-    }
-
-    .link-text {
-        flex: 1;
-        text-align: left;
-        margin-left: 15px;
-    }
-
-    .link-arrow {
-        font-size: 18px;
-        color: #94a3b8;
-        transition: all 0.3s ease;
-    }
-
-    .dashboard-link:hover .link-arrow {
-        color: #667eea;
-        transform: translateX(5px);
-    }
-
-    /* Different colors for each link icon */
-    .dashboard-link:nth-child(1) .link-icon { color: #10b981; }
-    .dashboard-link:nth-child(2) .link-icon { color: #3b82f6; }
-    .dashboard-link:nth-child(3) .link-icon { color: #8b5cf6; }
-    .dashboard-link:nth-child(4) .link-icon { color: #f59e0b; }
-    .dashboard-link:nth-child(5) .link-icon { color: #ef4444; }
-
-    .logout-section {
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 2px solid #e2e8f0;
-    }
-
-    .logout-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        padding: 12px 28px;
-        background: #fee2e2;
-        color: #dc2626;
-        text-decoration: none;
-        border-radius: 40px;
-        font-weight: 600;
-        font-size: 14px;
-        transition: all 0.3s ease;
-    }
-
-    .logout-link:hover {
-        background: #dc2626;
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-    }
-
-    /* Stats Cards */
-    .stats {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        margin-top: 30px;
-        flex-wrap: wrap;
-    }
-
-    .stat-card {
-        background: #f1f5f9;
-        padding: 12px 18px;
-        border-radius: 40px;
-        font-size: 12px;
-        font-weight: 500;
-        color: #475569;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    /* Responsive */
-    @media (max-width: 500px) {
-        .container {
-            padding: 30px 20px;
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        h2 {
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bbf0d3 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* Centered Container */
+        .dashboard-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Card Style */
+        .card {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        /* Header Section */
+        .card-header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5a7a 100%);
+            padding: 35px 35px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hospital-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+        }
+
+        .card-header h1 {
+            color: white;
             font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            margin-bottom: 8px;
         }
 
-        .dashboard-link {
-            padding: 14px 18px;
-        }
-
-        .link-text {
+        .card-header p {
+            color: rgba(255, 255, 255, 0.85);
             font-size: 14px;
         }
 
-        .stats {
-            gap: 10px;
+        /* Role Badge */
+        .role-badge {
+            background: rgba(255, 255, 255, 0.2);
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 13px;
+            margin-top: 15px;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            background: linear-gradient(105deg, #e8f5e9 0%, #e0f2fe 100%);
+            padding: 20px 35px;
+            border-bottom: 1px solid rgba(46, 204, 113, 0.2);
+        }
+
+        .welcome-text {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .welcome-icon {
+            font-size: 32px;
+        }
+
+        .welcome-text h2 {
+            color: #1e3a5f;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .welcome-text p {
+            color: #2c3e50;
+            font-size: 15px;
+            margin-top: 5px;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: #e2e8f0;
+            margin: 0;
         }
 
         .stat-card {
-            font-size: 10px;
-            padding: 8px 12px;
+            background: white;
+            padding: 20px 15px;
+            text-align: center;
+            transition: all 0.2s ease;
         }
-    }
-</style>
 
+        .stat-card:hover {
+            background: #f8fafc;
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e3a5f;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #5a6e7c;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Menu Grid */
+        .menu-section {
+            padding: 35px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e3a5f;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title:before {
+            content: "⚙️";
+            font-size: 20px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .menu-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 22px 20px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-card:hover {
+            background: white;
+            border-color: #2ecc71;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .menu-icon {
+            font-size: 36px;
+        }
+
+        .menu-content {
+            flex: 1;
+        }
+
+        .menu-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e3a5f;
+            margin-bottom: 4px;
+        }
+
+        .menu-desc {
+            font-size: 12px;
+            color: #5a6e7c;
+        }
+
+        /* Logout Section */
+        .logout-section {
+            padding: 0 35px 35px 35px;
+            text-align: center;
+        }
+
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #fee2e2;
+            color: #e74c3c;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            border: 1px solid #fecaca;
+        }
+
+        .btn-logout:hover {
+            background: #fecaca;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px 35px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #5a6e7c;
+        }
+
+        /* Responsive */
+        @media (max-width: 650px) {
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1px;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card-header h1 {
+                font-size: 24px;
+            }
+
+            .welcome-text {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .menu-section {
+                padding: 25px;
+            }
+
+            .logout-section {
+                padding: 0 25px 25px 25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+
+            .card-header {
+                padding: 25px 20px;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: fadeIn 0.4s ease-out;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="dashboard-wrapper">
+    <div class="card">
 
-<h2>🏥 Admin Dashboard</h2>
-<div class="welcome-text">
-    <i class="fas fa-user-shield"></i> Welcome back, Admin
-</div>
+        <!-- Header Section -->
+        <div class="card-header">
+            <div class="hospital-icon">🏥</div>
+            <h1>Hospital Management System</h1>
+            <p>Centralized Healthcare Administration Platform</p>
+            <div class="role-badge">👑 Administrator Access</div>
+        </div>
 
-<div class="dashboard-grid">
-    <a href="addDoctor.jsp" class="dashboard-link">
-        <span class="link-icon"><i class="fas fa-plus-circle"></i></span>
-        <span class="link-text">Add Doctor</span>
-        <span class="link-arrow"><i class="fas fa-chevron-right"></i></span>
-    </a>
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="welcome-text">
+                <div class="welcome-icon">👋</div>
+                <div>
+                    <h2>Welcome, Admin</h2>
+                    <p>You have full access to manage hospital operations</p>
+                </div>
+            </div>
+        </div>
 
-    <a href="viewDoctors.jsp" class="dashboard-link">
-        <span class="link-icon"><i class="fas fa-user-md"></i></span>
-        <span class="link-text">View Doctors</span>
-        <span class="link-arrow"><i class="fas fa-chevron-right"></i></span>
-    </a>
+        <!-- Statistics Overview (Visual enhancement only) -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-icon">👨‍⚕️</div>
+                <div class="stat-number">+</div>
+                <div class="stat-label">Doctors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏥</div>
+                <div class="stat-number">+</div>
+                <div class="stat-label">Patients</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-number">+</div>
+                <div class="stat-label">Appointments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-number">Active</div>
+                <div class="stat-label">Session</div>
+            </div>
+        </div>
 
-    <a href="viewPatients.jsp" class="dashboard-link">
-        <span class="link-icon"><i class="fas fa-procedures"></i></span>
-        <span class="link-text">View Patients</span>
-        <span class="link-arrow"><i class="fas fa-chevron-right"></i></span>
-    </a>
+        <!-- Menu Section -->
+        <div class="menu-section">
+            <div class="section-title">Management Tools</div>
 
-    <a href="viewAppointments.jsp" class="dashboard-link">
-        <span class="link-icon"><i class="fas fa-calendar-check"></i></span>
-        <span class="link-text">View Appointments</span>
-        <span class="link-arrow"><i class="fas fa-chevron-right"></i></span>
-    </a>
-</div>
+            <div class="menu-grid">
+                <!-- Add Doctor -->
+                <a href="addDoctor.jsp" class="menu-card">
+                    <div class="menu-icon">👨‍⚕️</div>
+                    <div class="menu-content">
+                        <div class="menu-title">Add Doctor</div>
+                        <div class="menu-desc">Register new medical staff</div>
+                    </div>
+                    <div class="menu-arrow">→</div>
+                </a>
 
-<div class="logout-section">
-    <a href="logout.jsp" class="logout-link">
-        <i class="fas fa-sign-out-alt"></i> Logout
-    </a>
-</div>
+                <!-- View Doctors -->
+                <a href="viewDoctors.jsp" class="menu-card">
+                    <div class="menu-icon">📋</div>
+                    <div class="menu-content">
+                        <div class="menu-title">View Doctors</div>
+                        <div class="menu-desc">Manage doctor records</div>
+                    </div>
+                    <div class="menu-arrow">→</div>
+                </a>
 
-<!-- Optional Stats Indicator (just for looks) -->
-<div class="stats">
-    <span class="stat-card"><i class="fas fa-chart-line"></i> System Active</span>
-    <span class="stat-card"><i class="fas fa-lock"></i> Secure Session</span>
-</div>
+                <!-- View Patients -->
+                <a href="viewPatients.jsp" class="menu-card">
+                    <div class="menu-icon">🏥</div>
+                    <div class="menu-content">
+                        <div class="menu-title">View Patients</div>
+                        <div class="menu-desc">Access patient directory</div>
+                    </div>
+                    <div class="menu-arrow">→</div>
+                </a>
 
+                <!-- View Appointments -->
+                <a href="viewAppointments.jsp" class="menu-card">
+                    <div class="menu-icon">📅</div>
+                    <div class="menu-content">
+                        <div class="menu-title">View Appointments</div>
+                        <div class="menu-desc">Schedule management</div>
+                    </div>
+                    <div class="menu-arrow">→</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Logout Section -->
+        <div class="logout-section">
+            <a href="logout.jsp" class="btn-logout">
+                🚪 Logout from System
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2024 Hospital Management System | Secure Admin Portal</p>
+        </div>
+
+    </div>
 </div>
 
 </body>

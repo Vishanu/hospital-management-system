@@ -83,4 +83,22 @@ public class UserDAO {
         }
         return id;
     }
+
+    public boolean deleteUser(int id){
+        boolean status = false;
+        try{
+            Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(
+                    "DELETE FROM users WHERE id=?"
+            );
+            ps.setInt(1, id);
+
+            if(ps.executeUpdate() > 0){
+                status = true;
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        return status;
+    }
 }
