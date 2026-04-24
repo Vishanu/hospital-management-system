@@ -101,7 +101,7 @@ hospital-management/
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/hospital-management.git
+git clone https://github.com/Vishanu/hospital-management-system.git
 ```
 
 ### 2️⃣ Import in IDE
