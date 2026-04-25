@@ -50,3 +50,5 @@ target/
 
 # Logs
 *.log
+
+src/util/DBConnection.java
