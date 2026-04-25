@@ -1,0 +1,145 @@
+---
+
+## ⚙️ Installation & Setup Guide
+
+Follow these steps to run the project on your local system:
+
+---
+
+### 🔧 Prerequisites
+
+Make sure you have installed:
+
+* Java JDK (8 or above)
+* Apache Tomcat (9 or above)
+* MySQL Server
+* Maven (if using Maven project)
+* IDE (Eclipse / IntelliJ)
+
+---
+
+### 📥 Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/your-username/hospital-management.git
+cd hospital-management
+```
+
+---
+
+### 🗄️ Step 2: Setup Database
+
+1. Open MySQL
+2. Create database:
+
+```sql
+CREATE DATABASE hospital;
+USE hospital;
+```
+
+3. Create tables:
+
+```sql
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100),
+    password VARCHAR(100),
+    role VARCHAR(20)
+);
+
+CREATE TABLE doctors (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    specialization VARCHAR(100),
+    phone VARCHAR(15),
+    user_id INT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE patients (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    age INT,
+    gender VARCHAR(10),
+    phone VARCHAR(15),
+    disease VARCHAR(100),
+    user_id INT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE appointments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT,
+    doctor_id INT,
+    appointment_date DATE,
+    status VARCHAR(20),
+    FOREIGN KEY (patient_id) REFERENCES patients(id),
+    FOREIGN KEY (doctor_id) REFERENCES doctors(id)
+);
+```
+
+---
+
+### 🔗 Step 3: Configure Database Connection
+
+Open:
+
+```text
+util/DBConnection.java
+```
+
+Update:
+
+```java
+String url = "jdbc:mysql://localhost:3306/hospital";
+String user = "root";
+String password = "your_password";
+```
+
+---
+
+### 📦 Step 4: Import Project
+
+* Open Eclipse / IntelliJ
+* Import as **Maven Project**
+* Wait for dependencies to load
+
+---
+
+### 🚀 Step 5: Run Project
+
+* Deploy project on **Apache Tomcat**
+* Start server
+* Open browser:
+
+```text
+http://localhost:8080/hospital-management
+```
+
+---
+
+### 🔐 Step 6: Create Admin (Manual)
+
+Run in MySQL:
+
+```sql
+INSERT INTO users(name, email, password, role)
+VALUES ('Admin', 'admin@gmail.com', 'admin123', 'admin');
+```
+
+---
+
+## ✅ You're Ready!
+
+Now you can:
+
+```text
+✔ Login as Admin
+✔ Add Doctors
+✔ Register Patients
+✔ Book Appointments
+✔ Manage Hospital Workflow
+```
+
+---
