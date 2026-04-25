@@ -35,13 +35,15 @@ public class Register extends HttpServlet {
 
                 p.setName(name);
 
-                // 👉 safe defaults (kyunki register.jsp me ye fields nahi hain)
-                p.setAge(0);
-                p.setGender("NA");
-                p.setPhone("0000000000");
-                p.setDisease("NA");
+                int age = Integer.parseInt(req.getParameter("age"));
+                String gender = req.getParameter("gender");
+                String phone = req.getParameter("phone");
+                String disease = req.getParameter("disease");
 
-                // 🔥 MOST IMPORTANT
+                p.setAge(age);
+                p.setGender(gender);
+                p.setPhone(phone);
+                p.setDisease(disease);
                 p.setUserId(userId);
 
                 PatientDAO pdao = new PatientDAO();

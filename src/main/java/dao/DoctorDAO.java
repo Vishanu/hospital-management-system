@@ -74,8 +74,6 @@ public class DoctorDAO {
         return userId;
     }
 
-
-    // ✅ ADD THIS METHOD - Get doctor count
     public int getDoctorCount() {
         int count = 0;
         String sql = "SELECT COUNT(*) FROM doctors";

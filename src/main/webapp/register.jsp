@@ -330,7 +330,6 @@
                         <label><i>📅</i> <span class="required">Age</span></label>
                         <input type="number" name="age" placeholder="e.g., 30" required>
                     </div>
-
                     <!-- Gender -->
                     <div class="input-group">
                         <label><i>⚧</i> Gender</label>
