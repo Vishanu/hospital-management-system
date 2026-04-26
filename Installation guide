@@ -33,52 +33,15 @@ cd hospital-management
 2. Create database:
 
 ```sql
-CREATE DATABASE hospital;
-USE hospital;
+CREATE DATABASE hospitaldb;
+USE hospitaldb;
 ```
 
-3. Create tables:
+3. Import SQL file:
+   Use hospitaldb;
+   SOURCE database/hospitaldb.sql;
 
-```sql
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
-    email VARCHAR(100),
-    password VARCHAR(100),
-    role VARCHAR(20)
-);
-
-CREATE TABLE doctors (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
-    specialization VARCHAR(100),
-    phone VARCHAR(15),
-    user_id INT,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
-CREATE TABLE patients (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
-    age INT,
-    gender VARCHAR(10),
-    phone VARCHAR(15),
-    disease VARCHAR(100),
-    user_id INT,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-
-CREATE TABLE appointments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    patient_id INT,
-    doctor_id INT,
-    appointment_date DATE,
-    status VARCHAR(20),
-    FOREIGN KEY (patient_id) REFERENCES patients(id),
-    FOREIGN KEY (doctor_id) REFERENCES doctors(id)
-);
-```
-
+3. Update DBConnection.java credentials
 ---
 
 ### 🔗 Step 3: Configure Database Connection
